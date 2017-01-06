@@ -1,4 +1,5 @@
 import _debug from './debug';
+const assert = require('assert');
 
 const debug = _debug();
 const warn = (options, ...rest) => {
@@ -7,6 +8,41 @@ const warn = (options, ...rest) => {
   }
 };
 
+Object.compare = function (obj1, obj2) {
+	//Loop through properties in object 1
+	for (var p in obj1) {
+            console.log("PROPERTY", p);
+		//Check property exists on both objects
+		if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+
+                console.log('value 1', obj1[p]);
+                console.log('value 2', obj2[p]);
+ 
+		switch (typeof (obj1[p])) {
+			//Deep compare objects
+			case 'object':
+                            console.log('OBJECT');
+				if (!Object.compare(obj1[p], obj2[p])) return false;
+				break;
+			//Compare function code
+			case 'function':
+                            console.log('FUNCTION');
+				if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
+				break;
+			//Compare values
+			default:
+				if (obj1[p] != obj2[p]) return false;
+		}
+	}
+ 
+	//Check object 2 for any extra properties
+	for (var p in obj2) {
+                console.log("2 PROPERTY", p);
+                console.log("2 VALUE", obj1[p]);
+		if (typeof (obj1[p]) == 'undefined') return false;
+	}
+	return true;
+};
 
 export default (Model, bootOptions = {}) => {
   debug('Auditz mixin for Model %s', Model.modelName);
@@ -122,6 +158,19 @@ export default (Model, bootOptions = {}) => {
         ipForwarded = ctx.options.remoteCtx.req.headers['x-forwarded-for'];
         ip = ctx.options.remoteCtx.req.connection.remoteAddress;
       }
+      let groups = options.revisions.groups;
+      if (groups && Array.isArray(groups)) {
+          let count = 0;
+          groups.forEach(function (group) {
+              createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
+                  count += 1;
+                  if (count === groups.length) {
+                      next();
+                  }
+              });
+          });
+          return;
+      }
       // If it's a new instance, set the createdBy to currentUser
       if (ctx.isNewInstance) {
         app.models[options.revisionsModelName].create({
@@ -211,6 +260,77 @@ export default (Model, bootOptions = {}) => {
       }
     });
   });
+
+  function cloneKey(key, from, to) {
+    let parts = key.split('.');
+
+    let toObject = to;
+    let fromObject = from;
+
+    parts.forEach(function (key, index) {
+      if(index === parts.length - 1) {
+        toObject[key] = fromObject[key];
+      }else {
+        if (!toObject[key]) {
+          toObject[key] = {}; 
+        }
+      }
+
+      fromObject = fromObject[key];
+      toObject = toObject[key];
+    });
+  }
+
+  function createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, cb) {
+    let data = {};
+    group.properties.forEach(function (key) {
+        cloneKey(key, ctx.instance, data);
+    });
+    debug(data);
+
+    let rec = {
+      table_name: Model.modelName,
+      row_id: ctx.instance.id,
+      new: data,
+      user: currentUser,
+      ip: ip,
+      ip_forwarded: ipForwarded,
+    };
+
+    if (ctx.isNewInstance) {
+      rec['action'] = 'create';
+      rec['old'] = null;
+      app.models[options.revisionsModelName].create(rec, cb);
+    } else {
+      let filter = {
+        order: 'created_at DESC'
+      };
+      app.models[group.name].findOne(filter, function(err, res) {
+        if (err || !res) {
+          rec['old'] = null;
+        }else {
+          let old = {};
+          //make sure the object is pure
+          group.properties.forEach(function (key) {
+            cloneKey(key, res.new, old);
+          });
+          rec['old'] = old;
+        }
+
+        rec['action'] = 'update';
+
+        //get away from undefined properties so compare can work
+        let recNew = JSON.parse(JSON.stringify(rec.new));
+        let recOld = rec.old && JSON.parse(JSON.stringify(rec.old));
+
+        if (rec.old && Object.compare(recNew, recOld)) {
+            console.log('equal '+ group.name);
+            return cb();
+        }
+        app.models[group.name].create(rec, cb);
+      });
+    }
+  }
 
   function getOldInstance(ctx, cb) {
     if (options.revisions) {
@@ -419,6 +539,17 @@ export default (Model, bootOptions = {}) => {
     const rowIdType = (typeof opts.revisions === 'object' && opts.revisions.idType) ?
       opts.revisions.idType : 'Number';
 
+    if(opts.revisions && typeof opts.revisions === 'object' && 
+       opts.revisions.groups && opts.revisions.groups.length) {
+      opts.revisions.groups.forEach(function (group) {
+          _createModel(opts, dsName, autoUpdate, rowIdType, group);
+      });
+    }else {
+      _createModel(opts, dsName, autoUpdate, rowIdType, options.revisionsModelName);
+    }
+  }
+
+  function _createModel(opts, dsName, autoUpdate, rowIdType, group) {
     const revisionsDef = require('./models/revision.json');
     let settings = {};
     for (let s in revisionsDef) {
@@ -427,9 +558,12 @@ export default (Model, bootOptions = {}) => {
       }
     }
 
+    settings['plural'] = group.plural;
+
     revisionsDef.properties.row_id.type = rowIdType;
+
     const revisionsModel = app.dataSources[dsName].createModel(
-      options.revisionsModelName,
+      group.name,
       revisionsDef.properties,
       settings
     );
@@ -440,7 +574,7 @@ export default (Model, bootOptions = {}) => {
 
     if (autoUpdate) {
       // create or update the revisions table
-      app.dataSources[dsName].autoupdate([options.revisionsModelName], (error) => {
+      app.dataSources[dsName].autoupdate([group.name], (error) => {
         if (error) {console.error(error);}
       });
     }
