@@ -532,7 +532,7 @@ export default (Model, bootOptions = {}) => {
     };
   }
 
-  function _setupRevisionsModel(opts) {
+  function _setupRevisionsModel(app, opts) {
     const autoUpdate = (opts.revisions === true || (typeof opts.revisions === 'object' && opts.revisions.autoUpdate));
     const dsName = (typeof opts.revisions === 'object' && opts.revisions.dataSource) ?
       opts.revisions.dataSource : 'db';
@@ -542,7 +542,9 @@ export default (Model, bootOptions = {}) => {
     if(opts.revisions && typeof opts.revisions === 'object' && 
        opts.revisions.groups && opts.revisions.groups.length) {
       opts.revisions.groups.forEach(function (group) {
-          _createModel(opts, dsName, autoUpdate, rowIdType, group);
+          if (!app.models[group.name]) {
+              _createModel(opts, dsName, autoUpdate, rowIdType, group);
+          }
       });
     }else {
       _createModel(opts, dsName, autoUpdate, rowIdType, options.revisionsModelName);
@@ -585,7 +587,7 @@ export default (Model, bootOptions = {}) => {
       if (err) { return console.error(err);}
       app = a;
       if (!app.models[options.revisionsModelName]) {
-        _setupRevisionsModel(options);
+        _setupRevisionsModel(app, options);
       }
     });
   }
