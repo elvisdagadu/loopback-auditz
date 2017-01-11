@@ -300,7 +300,7 @@ export default (Model, bootOptions = {}) => {
     if (ctx.isNewInstance) {
       rec['action'] = 'create';
       rec['old'] = null;
-      app.models[options.revisionsModelName].create(rec, cb);
+      app.models[group.name].create(rec, cb);
     } else {
       let filter = {
         order: 'created_at DESC'

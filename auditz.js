@@ -358,7 +358,7 @@ exports.default = function (Model) {
     if (ctx.isNewInstance) {
       rec['action'] = 'create';
       rec['old'] = null;
-      app.models[options.revisionsModelName].create(rec, cb);
+      app.models[group.name].create(rec, cb);
     } else {
       var filter = {
         order: 'created_at DESC'
@@ -631,14 +631,16 @@ exports.default = function (Model) {
     })();
   }
 
-  function _setupRevisionsModel(opts) {
+  function _setupRevisionsModel(app, opts) {
     var autoUpdate = opts.revisions === true || (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.autoUpdate;
     var dsName = (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.dataSource ? opts.revisions.dataSource : 'db';
     var rowIdType = (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.idType ? opts.revisions.idType : 'Number';
 
     if (opts.revisions && (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.groups && opts.revisions.groups.length) {
       opts.revisions.groups.forEach(function (group) {
-        _createModel(opts, dsName, autoUpdate, rowIdType, group);
+        if (!app.models[group.name]) {
+          _createModel(opts, dsName, autoUpdate, rowIdType, group);
+        }
       });
     } else {
       _createModel(opts, dsName, autoUpdate, rowIdType, options.revisionsModelName);
@@ -680,7 +682,7 @@ exports.default = function (Model) {
       }
       app = a;
       if (!app.models[options.revisionsModelName]) {
-        _setupRevisionsModel(options);
+        _setupRevisionsModel(app, options);
       }
     });
   }
