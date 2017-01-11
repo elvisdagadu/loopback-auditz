@@ -269,14 +269,14 @@ export default (Model, bootOptions = {}) => {
 
     parts.forEach(function (key, index) {
       if(index === parts.length - 1) {
-        toObject[key] = fromObject[key];
+        toObject[key] = fromObject && fromObject[key];
       }else {
         if (!toObject[key]) {
           toObject[key] = {}; 
         }
       }
 
-      fromObject = fromObject[key];
+      fromObject = fromObject && fromObject[key];
       toObject = toObject[key];
     });
   }
