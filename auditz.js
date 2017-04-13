@@ -20,13 +20,13 @@ var _keys = require('babel-runtime/core-js/object/keys');
 
 var _keys2 = _interopRequireDefault(_keys);
 
-var _extends3 = require('babel-runtime/helpers/extends');
-
-var _extends4 = _interopRequireDefault(_extends3);
-
 var _typeof2 = require('babel-runtime/helpers/typeof');
 
 var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _extends3 = require('babel-runtime/helpers/extends');
+
+var _extends4 = _interopRequireDefault(_extends3);
 
 var _debug2 = require('./debug');
 
@@ -35,6 +35,7 @@ var _debug3 = _interopRequireDefault(_debug2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var assert = require('assert');
+var equal = require('deep-equal');
 
 var debug = (0, _debug3.default)();
 var warn = function warn(options) {
@@ -47,42 +48,6 @@ var warn = function warn(options) {
 
     (_console = console).warn.apply(_console, rest);
   }
-};
-
-Object.compare = function (obj1, obj2) {
-  //Loop through properties in object 1
-  for (var p in obj1) {
-    console.log("PROPERTY", p);
-    //Check property exists on both objects
-    if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
-
-    console.log('value 1', obj1[p]);
-    console.log('value 2', obj2[p]);
-
-    switch ((0, _typeof3.default)(obj1[p])) {
-      //Deep compare objects
-      case 'object':
-        console.log('OBJECT');
-        if (!Object.compare(obj1[p], obj2[p])) return false;
-        break;
-      //Compare function code
-      case 'function':
-        console.log('FUNCTION');
-        if (typeof obj2[p] == 'undefined' || p != 'compare' && obj1[p].toString() != obj2[p].toString()) return false;
-        break;
-      //Compare values
-      default:
-        if (obj1[p] != obj2[p]) return false;
-    }
-  }
-
-  //Check object 2 for any extra properties
-  for (var p in obj2) {
-    console.log("2 PROPERTY", p);
-    console.log("2 VALUE", obj1[p]);
-    if (typeof obj1[p] == 'undefined') return false;
-  }
-  return true;
 };
 
 exports.default = function (Model) {
@@ -383,7 +348,7 @@ exports.default = function (Model) {
         var recNew = JSON.parse((0, _stringify2.default)(rec.new));
         var recOld = rec.old && JSON.parse((0, _stringify2.default)(rec.old));
 
-        if (rec.old && Object.compare(recNew, recOld)) {
+        if (rec.old && equal(recNew, recOld)) {
           console.log('equal ' + group.name);
           return cb();
         }

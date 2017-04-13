@@ -1,47 +1,12 @@
 import _debug from './debug';
 const assert = require('assert');
+var equal = require('deep-equal');
 
 const debug = _debug();
 const warn = (options, ...rest) => {
   if (!options.silenceWarnings) {
     console.warn(...rest);
   }
-};
-
-Object.compare = function (obj1, obj2) {
-	//Loop through properties in object 1
-	for (var p in obj1) {
-            console.log("PROPERTY", p);
-		//Check property exists on both objects
-		if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
-
-                console.log('value 1', obj1[p]);
-                console.log('value 2', obj2[p]);
- 
-		switch (typeof (obj1[p])) {
-			//Deep compare objects
-			case 'object':
-                            console.log('OBJECT');
-				if (!Object.compare(obj1[p], obj2[p])) return false;
-				break;
-			//Compare function code
-			case 'function':
-                            console.log('FUNCTION');
-				if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
-				break;
-			//Compare values
-			default:
-				if (obj1[p] != obj2[p]) return false;
-		}
-	}
- 
-	//Check object 2 for any extra properties
-	for (var p in obj2) {
-                console.log("2 PROPERTY", p);
-                console.log("2 VALUE", obj1[p]);
-		if (typeof (obj1[p]) == 'undefined') return false;
-	}
-	return true;
 };
 
 export default (Model, bootOptions = {}) => {
@@ -323,7 +288,7 @@ export default (Model, bootOptions = {}) => {
         let recNew = JSON.parse(JSON.stringify(rec.new));
         let recOld = rec.old && JSON.parse(JSON.stringify(rec.old));
 
-        if (rec.old && Object.compare(recNew, recOld)) {
+        if (rec.old && equal(recNew, recOld)) {
             console.log('equal '+ group.name);
             return cb();
         }
