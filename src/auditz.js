@@ -159,16 +159,21 @@ export default (Model, bootOptions = {}) => {
         ip = ctx.options.remoteCtx.req.connection.remoteAddress;
       }
       let groups = options.revisions.groups;
+
       if (groups && Array.isArray(groups)) {
           let count = 0;
-          groups.forEach(function (group) {
-              createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
-                  count += 1;
-                  if (count === groups.length) {
-                      next();
-                  }
+          if (!(ctx.options && ctx.options.delete)) {
+              groups.forEach(function (group) {
+                  createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
+                      count += 1;
+                      if (count === groups.length) {
+                          next();
+                      }
+                  });
               });
-          });
+              return;
+          }
+          next();
           return;
       }
       // If it's a new instance, set the createdBy to currentUser
