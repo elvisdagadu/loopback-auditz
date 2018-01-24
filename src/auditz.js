@@ -298,37 +298,30 @@ export default (Model, bootOptions = {}) => {
     };
 
     if (ctx.isNewInstance) {
-      rec['action'] = 'create';
-      rec['old'] = null;
+      rec.action = 'create';
+      rec.old = null;
       app.models[group.name].create(rec, cb);
     } else {
-      let filter = {
-        order: 'created_at DESC'
-      };
-      app.models[group.name].findOne(filter, function(err, res) {
-        if (err || !res) {
-          rec['old'] = null;
-        }else {
-          let old = {};
-          //make sure the object is pure
-          group.properties.forEach(function (key) {
-            cloneKey(key, res.new, old);
-          });
-          rec['old'] = old;
-        }
+      rec.action = 'update';
+      rec.old = ctx.options.oldInstance || null;
+      if (rec.old) {
+        let old = {};
+        //make sure the object is pure
+        group.properties.forEach(function (key) {
+          cloneKey(key, rec.old, old);
+        });
+        rec.old = old;
+      }
+        
+      //get away from undefined properties so compare can work
+      let recNew = JSON.parse(JSON.stringify(rec.new));
+      let recOld = rec.old && JSON.parse(JSON.stringify(rec.old));
 
-        rec['action'] = 'update';
-
-        //get away from undefined properties so compare can work
-        let recNew = JSON.parse(JSON.stringify(rec.new));
-        let recOld = rec.old && JSON.parse(JSON.stringify(rec.old));
-
-        if (rec.old && Object.compare(recNew, recOld)) {
-            console.log('equal '+ group.name);
-            return cb();
-        }
-        app.models[group.name].create(rec, cb);
-      });
+      if (rec.old && Object.compare(recNew, recOld)) {
+          console.log('equal '+ group.name);
+          return cb();
+      }
+      app.models[group.name].create(rec, cb);
     }
   }
 
