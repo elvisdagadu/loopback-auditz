@@ -143,10 +143,9 @@ export default (Model, bootOptions = {}) => {
     // determine the currently logged in user. Default to options.unknownUser
     let currentUser = options.unknownUser;
 
-    if (ctx.options[options.remoteCtx]) {
-      if (ctx.options[options.remoteCtx].req.accessToken) {
-        currentUser = ctx.options[options.remoteCtx].req.accessToken.userId;
-      }
+
+    if (ctx.options.accessToken) {
+      currentUser = ctx.options.accessToken.userId;
     }
 
     Model.getApp((err, a) => {
@@ -388,10 +387,8 @@ export default (Model, bootOptions = {}) => {
       // determine the currently logged in user. Default to options.unknownUser
       let currentUser = options.unknownUser;
 
-      if (ctx.options[options.remoteCtx]) {
-        if (ctx.options[options.remoteCtx].req.accessToken) {
-          currentUser = ctx.options[options.remoteCtx].req.accessToken.userId;
-        }
+      if (ctx.options.accessToken) {
+        currentUser = ctx.options.accessToken.userId;
       }
 
       // If it's a new instance, set the createdBy to currentUser
