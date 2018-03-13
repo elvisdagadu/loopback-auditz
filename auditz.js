@@ -159,13 +159,13 @@ exports.default = function (Model) {
 
   if (options.createdBy !== false) {
     if (typeof properties[options.createdBy] === 'undefined') {
-      Model.defineProperty(options.createdBy, { type: Number, required: false });
+      Model.defineProperty(options.createdBy, { type: String, required: false });
     }
   }
 
   if (options.updatedBy !== false) {
     if (typeof properties[options.updatedBy] === 'undefined') {
-      Model.defineProperty(options.updatedBy, { type: Number, required: false });
+      Model.defineProperty(options.updatedBy, { type: String, required: false });
     }
   }
 
@@ -174,7 +174,7 @@ exports.default = function (Model) {
       Model.defineProperty(options.deletedAt, { type: Date, required: false });
     }
     if (typeof properties[options.deletedBy] === 'undefined') {
-      Model.defineProperty(options.deletedBy, { type: Number, required: false });
+      Model.defineProperty(options.deletedBy, { type: String, required: false });
     }
   }
 
@@ -205,28 +205,20 @@ exports.default = function (Model) {
       var groups = options.revisions.groups;
 
       if (groups && Array.isArray(groups)) {
-        var _ret = function () {
-          var count = 0;
-          if (!(ctx.options && ctx.options.delete)) {
-            groups.forEach(function (group) {
-              createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
-                count += 1;
-                if (count === groups.length) {
-                  next();
-                }
-              });
+        var count = 0;
+        if (!(ctx.options && ctx.options.delete)) {
+          groups.forEach(function (group) {
+            createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
+              count += 1;
+              if (count === groups.length) {
+                next();
+              }
             });
-            return {
-              v: void 0
-            };
-          }
-          next();
-          return {
-            v: void 0
-          };
-        }();
-
-        if ((typeof _ret === 'undefined' ? 'undefined' : (0, _typeof3.default)(_ret)) === "object") return _ret.v;
+          });
+          return;
+        }
+        next();
+        return;
       }
       // If it's a new instance, set the createdBy to currentUser
       if (ctx.isNewInstance) {
@@ -285,34 +277,32 @@ exports.default = function (Model) {
               ip_forwarded: ipForwarded
             }, next);
           } else if (ctx.options.oldInstances) {
-            (function () {
-              var updatedIds = ctx.options.oldInstances.map(function (inst) {
-                return inst.id;
+            var updatedIds = ctx.options.oldInstances.map(function (inst) {
+              return inst.id;
+            });
+            var newInst = {};
+            var query = { where: (0, _defineProperty3.default)({}, idName, { inq: updatedIds }) };
+            app.models[Model.modelName].find(query, function (error, newInstances) {
+              if (error) {
+                return next(error);
+              }
+              newInstances.forEach(function (inst) {
+                newInst[inst[idName]] = inst;
               });
-              var newInst = {};
-              var query = { where: (0, _defineProperty3.default)({}, idName, { inq: updatedIds }) };
-              app.models[Model.modelName].find(query, function (error, newInstances) {
-                if (error) {
-                  return next(error);
-                }
-                newInstances.forEach(function (inst) {
-                  newInst[inst[idName]] = inst;
-                });
-                var entries = ctx.options.oldInstances.map(function (inst) {
-                  return {
-                    action: 'update',
-                    table_name: Model.modelName,
-                    row_id: inst.id,
-                    old: inst,
-                    new: newInst[inst.id],
-                    user: currentUser,
-                    ip: ip,
-                    ip_forwarded: ipForwarded
-                  };
-                });
-                app.models[options.revisionsModelName].create(entries, next);
+              var entries = ctx.options.oldInstances.map(function (inst) {
+                return {
+                  action: 'update',
+                  table_name: Model.modelName,
+                  row_id: inst.id,
+                  old: inst,
+                  new: newInst[inst.id],
+                  user: currentUser,
+                  ip: ip,
+                  ip_forwarded: ipForwarded
+                };
               });
-            })();
+              app.models[options.revisionsModelName].create(entries, next);
+            });
           } else {
             debug('Cannot register update without old and new instance. Options: %j', ctx.options);
             debug('instance: %j', ctx.instance);
@@ -368,14 +358,12 @@ exports.default = function (Model) {
       rec.action = 'update';
       rec.old = ctx.options.oldInstance || null;
       if (rec.old) {
-        (function () {
-          var old = {};
-          //make sure the object is pure
-          group.properties.forEach(function (key) {
-            cloneKey(key, rec.old, old);
-          });
-          rec.old = old;
-        })();
+        var old = {};
+        //make sure the object is pure
+        group.properties.forEach(function (key) {
+          cloneKey(key, rec.old, old);
+        });
+        rec.old = old;
       }
 
       //get away from undefined properties so compare can work
@@ -498,133 +486,131 @@ exports.default = function (Model) {
   });
 
   if (options.softDelete) {
-    (function () {
-      Model.destroyAll = function softDestroyAll(where, cb) {
-        var query = where || {};
-        var callback = cb;
-        if (typeof where === 'function') {
-          callback = where;
-          query = {};
-        }
-        return Model.updateAll(query, (0, _extends4.default)({}, scrubbed), { delete: true }).then(function (result) {
-          return typeof callback === 'function' ? callback(null, result) : result;
-        }).catch(function (error) {
-          return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
-        });
-      };
+    Model.destroyAll = function softDestroyAll(where, cb) {
+      var query = where || {};
+      var callback = cb;
+      if (typeof where === 'function') {
+        callback = where;
+        query = {};
+      }
+      return Model.updateAll(query, (0, _extends4.default)({}, scrubbed), { delete: true }).then(function (result) {
+        return typeof callback === 'function' ? callback(null, result) : result;
+      }).catch(function (error) {
+        return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
+      });
+    };
 
-      Model.remove = Model.destroyAll;
-      Model.deleteAll = Model.destroyAll;
+    Model.remove = Model.destroyAll;
+    Model.deleteAll = Model.destroyAll;
 
-      Model.destroyById = function softDestroyById(id, opt, cb) {
-        var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
-        var newOpt = { delete: true };
-        if ((typeof opt === 'undefined' ? 'undefined' : (0, _typeof3.default)(opt)) === 'object') {
-          newOpt.remoteCtx = opt.remoteCtx;
-        }
+    Model.destroyById = function softDestroyById(id, opt, cb) {
+      var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
+      var newOpt = { delete: true };
+      if ((typeof opt === 'undefined' ? 'undefined' : (0, _typeof3.default)(opt)) === 'object') {
+        newOpt.remoteCtx = opt.remoteCtx;
+      }
 
-        return Model.updateAll((0, _defineProperty3.default)({}, idName, id), (0, _extends4.default)({}, scrubbed), newOpt).then(function (result) {
-          return typeof callback === 'function' ? callback(null, result) : result;
-        }).catch(function (error) {
-          return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
-        });
-      };
+      return Model.updateAll((0, _defineProperty3.default)({}, idName, id), (0, _extends4.default)({}, scrubbed), newOpt).then(function (result) {
+        return typeof callback === 'function' ? callback(null, result) : result;
+      }).catch(function (error) {
+        return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
+      });
+    };
 
-      Model.removeById = Model.destroyById;
-      Model.deleteById = Model.destroyById;
+    Model.removeById = Model.destroyById;
+    Model.deleteById = Model.destroyById;
 
-      Model.prototype.destroy = function softDestroy(opt, cb) {
-        var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
+    Model.prototype.destroy = function softDestroy(opt, cb) {
+      var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
 
-        return this.updateAttributes((0, _extends4.default)({}, scrubbed), { delete: true }).then(function (result) {
-          return typeof cb === 'function' ? callback(null, result) : result;
-        }).catch(function (error) {
-          return typeof cb === 'function' ? callback(error) : _promise2.default.reject(error);
-        });
-      };
+      return this.updateAttributes((0, _extends4.default)({}, scrubbed), { delete: true }).then(function (result) {
+        return typeof cb === 'function' ? callback(null, result) : result;
+      }).catch(function (error) {
+        return typeof cb === 'function' ? callback(error) : _promise2.default.reject(error);
+      });
+    };
 
-      Model.prototype.remove = Model.prototype.destroy;
-      Model.prototype.delete = Model.prototype.destroy;
+    Model.prototype.remove = Model.prototype.destroy;
+    Model.prototype.delete = Model.prototype.destroy;
 
-      // Emulate default scope but with more flexibility.
-      var queryNonDeleted = (0, _defineProperty3.default)({}, options.deletedAt, null);
+    // Emulate default scope but with more flexibility.
+    var queryNonDeleted = (0, _defineProperty3.default)({}, options.deletedAt, null);
 
-      var _findOrCreate = Model.findOrCreate;
-      Model.findOrCreate = function findOrCreateDeleted() {
-        var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var _findOrCreate = Model.findOrCreate;
+    Model.findOrCreate = function findOrCreateDeleted() {
+      var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        if (!query.deleted) {
-          if (!query.where || (0, _keys2.default)(query.where).length === 0) {
-            query.where = queryNonDeleted;
-          } else {
-            query.where = { and: [query.where, queryNonDeleted] };
-          }
-        }
-
-        for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-          rest[_key2 - 1] = arguments[_key2];
-        }
-
-        return _findOrCreate.call.apply(_findOrCreate, [Model, query].concat(rest));
-      };
-
-      var _find = Model.find;
-      Model.find = function findDeleted() {
-        var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        if (!query.deleted) {
-          if (!query.where || (0, _keys2.default)(query.where).length === 0) {
-            query.where = queryNonDeleted;
-          } else {
-            query.where = { and: [query.where, queryNonDeleted] };
-          }
-        }
-
-        for (var _len3 = arguments.length, rest = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
-          rest[_key3 - 1] = arguments[_key3];
-        }
-
-        return _find.call.apply(_find, [Model, query].concat(rest));
-      };
-
-      var _count = Model.count;
-      Model.count = function countDeleted() {
-        var where = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        // Because count only receives a 'where', there's nowhere to ask for the deleted entities.
-        var whereNotDeleted = void 0;
-        if (!where || (0, _keys2.default)(where).length === 0) {
-          whereNotDeleted = queryNonDeleted;
+      if (!query.deleted) {
+        if (!query.where || (0, _keys2.default)(query.where).length === 0) {
+          query.where = queryNonDeleted;
         } else {
-          whereNotDeleted = { and: [where, queryNonDeleted] };
+          query.where = { and: [query.where, queryNonDeleted] };
         }
+      }
 
-        for (var _len4 = arguments.length, rest = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-          rest[_key4 - 1] = arguments[_key4];
-        }
+      for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        rest[_key2 - 1] = arguments[_key2];
+      }
 
-        return _count.call.apply(_count, [Model, whereNotDeleted].concat(rest));
-      };
+      return _findOrCreate.call.apply(_findOrCreate, [Model, query].concat(rest));
+    };
 
-      var _update = Model.update;
-      Model.update = Model.updateAll = function updateDeleted() {
-        var where = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var _find = Model.find;
+    Model.find = function findDeleted() {
+      var query = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        // Because update/updateAll only receives a 'where', there's nowhere to ask for the deleted entities.
-        var whereNotDeleted = void 0;
-        if (!where || (0, _keys2.default)(where).length === 0) {
-          whereNotDeleted = queryNonDeleted;
+      if (!query.deleted) {
+        if (!query.where || (0, _keys2.default)(query.where).length === 0) {
+          query.where = queryNonDeleted;
         } else {
-          whereNotDeleted = { and: [where, queryNonDeleted] };
+          query.where = { and: [query.where, queryNonDeleted] };
         }
+      }
 
-        for (var _len5 = arguments.length, rest = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
-          rest[_key5 - 1] = arguments[_key5];
-        }
+      for (var _len3 = arguments.length, rest = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+        rest[_key3 - 1] = arguments[_key3];
+      }
 
-        return _update.call.apply(_update, [Model, whereNotDeleted].concat(rest));
-      };
-    })();
+      return _find.call.apply(_find, [Model, query].concat(rest));
+    };
+
+    var _count = Model.count;
+    Model.count = function countDeleted() {
+      var where = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      // Because count only receives a 'where', there's nowhere to ask for the deleted entities.
+      var whereNotDeleted = void 0;
+      if (!where || (0, _keys2.default)(where).length === 0) {
+        whereNotDeleted = queryNonDeleted;
+      } else {
+        whereNotDeleted = { and: [where, queryNonDeleted] };
+      }
+
+      for (var _len4 = arguments.length, rest = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+        rest[_key4 - 1] = arguments[_key4];
+      }
+
+      return _count.call.apply(_count, [Model, whereNotDeleted].concat(rest));
+    };
+
+    var _update = Model.update;
+    Model.update = Model.updateAll = function updateDeleted() {
+      var where = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      // Because update/updateAll only receives a 'where', there's nowhere to ask for the deleted entities.
+      var whereNotDeleted = void 0;
+      if (!where || (0, _keys2.default)(where).length === 0) {
+        whereNotDeleted = queryNonDeleted;
+      } else {
+        whereNotDeleted = { and: [where, queryNonDeleted] };
+      }
+
+      for (var _len5 = arguments.length, rest = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+        rest[_key5 - 1] = arguments[_key5];
+      }
+
+      return _update.call.apply(_update, [Model, whereNotDeleted].concat(rest));
+    };
   }
 
   function _setupRevisionsModel(app, opts) {

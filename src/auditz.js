@@ -115,13 +115,13 @@ export default (Model, bootOptions = {}) => {
 
   if (options.createdBy !== false) {
     if (typeof(properties[options.createdBy]) === 'undefined') {
-      Model.defineProperty(options.createdBy, {type: Number, required: false});
+      Model.defineProperty(options.createdBy, {type: String, required: false});
     }
   }
 
   if (options.updatedBy !== false) {
     if (typeof(properties[options.updatedBy]) === 'undefined') {
-      Model.defineProperty(options.updatedBy, {type: Number, required: false});
+      Model.defineProperty(options.updatedBy, {type: String, required: false});
     }
   }
 
@@ -130,7 +130,7 @@ export default (Model, bootOptions = {}) => {
       Model.defineProperty(options.deletedAt, {type: Date, required: false});
     }
     if (typeof(properties[options.deletedBy]) === 'undefined') {
-      Model.defineProperty(options.deletedBy, {type: Number, required: false});
+      Model.defineProperty(options.deletedBy, {type: String, required: false});
     }
   }
 
