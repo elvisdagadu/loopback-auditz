@@ -420,13 +420,21 @@ export default (Model, bootOptions = {}) => {
           keyBy = options.deletedBy;
         }
       }
+
+      let obj;
       if (ctx.instance) {
-        ctx.instance[keyAt] = new Date();
-        ctx.instance[keyBy] = currentUser;
+        obj = ctx.instance;
       } else {
-        ctx.data[keyAt] = new Date();
-        ctx.data[keyBy] = currentUser;
+        obj = ctx.data;
       }
+
+      if (keyAt !== false) {
+        obj[keyAt] = new Date();
+      }
+      if (keyBy !== false) {
+        obj[keyBy] = currentUser;
+      }
+
       return next();
     });
   });
