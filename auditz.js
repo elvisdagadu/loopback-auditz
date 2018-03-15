@@ -474,13 +474,21 @@ exports.default = function (Model) {
           keyBy = options.deletedBy;
         }
       }
+
+      var obj = void 0;
       if (ctx.instance) {
-        ctx.instance[keyAt] = new Date();
-        ctx.instance[keyBy] = currentUser;
+        obj = ctx.instance;
       } else {
-        ctx.data[keyAt] = new Date();
-        ctx.data[keyBy] = currentUser;
+        obj = ctx.data;
       }
+
+      if (keyAt !== false) {
+        obj[keyAt] = new Date();
+      }
+      if (keyBy !== false) {
+        obj[keyBy] = currentUser;
+      }
+
       return next();
     });
   });
