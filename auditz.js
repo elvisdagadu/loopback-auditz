@@ -99,7 +99,7 @@ exports.default = function (Model) {
     updatedBy: 'updatedBy',
     deletedBy: 'deletedBy',
     softDelete: true,
-    unknownUser: 0,
+    unknownUser: '0',
     remoteCtx: 'remoteCtx',
     scrub: false,
     required: true,
@@ -113,7 +113,7 @@ exports.default = function (Model) {
     }
   }, bootOptions);
 
-  options.revisionsModelName = (0, _typeof3.default)(options.revisions) === 'object' && options.revisions.name ? options.revisions.name : 'revisions';
+  options.revisionsModelName = (0, _typeof3.default)(options.revisions) === 'object' && options.revisions.name ? options.revisions.name : null;
   debug('options', options);
 
   var properties = Model.definition.properties;
@@ -204,22 +204,28 @@ exports.default = function (Model) {
       }
       var groups = options.revisions.groups;
 
-      if (groups && Array.isArray(groups)) {
-        var count = 0;
-        if (!(ctx.options && ctx.options.delete)) {
-          groups.forEach(function (group) {
-            createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
-              count += 1;
-              if (count === groups.length) {
-                next();
-              }
-            });
-          });
+      var saveGroups = function saveGroups(err) {
+        if (err) {
+          next(err);
           return;
         }
+        if (groups && Array.isArray(groups)) {
+          var count = 0;
+          if (!(ctx.options && ctx.options.delete)) {
+            groups.forEach(function (group) {
+              createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
+                count += 1;
+                if (count === groups.length) {
+                  next();
+                }
+              });
+            });
+            return;
+          }
+        }
         next();
-        return;
-      }
+      };
+
       // If it's a new instance, set the createdBy to currentUser
       if (ctx.isNewInstance) {
         app.models[options.revisionsModelName].create({
@@ -231,7 +237,7 @@ exports.default = function (Model) {
           user: currentUser,
           ip: ip,
           ip_forwarded: ipForwarded
-        }, next);
+        }, saveGroups);
       } else {
         if (ctx.options && ctx.options.delete) {
           if (ctx.options.oldInstance) {
@@ -244,7 +250,7 @@ exports.default = function (Model) {
               user: currentUser,
               ip: ip,
               ip_forwarded: ipForwarded
-            }, next);
+            }, saveGroups);
           } else if (ctx.options.oldInstances) {
             var entries = ctx.options.oldInstances.map(function (inst) {
               return {
@@ -258,10 +264,10 @@ exports.default = function (Model) {
                 ip_forwarded: ipForwarded
               };
             });
-            app.models[options.revisionsModelName].create(entries, next);
+            app.models[options.revisionsModelName].create(entries, saveGroups);
           } else {
             debug('Cannot register delete without old instance! Options: %j', ctx.options);
-            return next();
+            return saveGroups();
           }
         } else {
           if (ctx.options.oldInstance && ctx.instance) {
@@ -275,7 +281,7 @@ exports.default = function (Model) {
               user: currentUser,
               ip: ip,
               ip_forwarded: ipForwarded
-            }, next);
+            }, saveGroups);
           } else if (ctx.options.oldInstances) {
             var updatedIds = ctx.options.oldInstances.map(function (inst) {
               return inst.id;
@@ -301,13 +307,13 @@ exports.default = function (Model) {
                   ip_forwarded: ipForwarded
                 };
               });
-              app.models[options.revisionsModelName].create(entries, next);
+              app.models[options.revisionsModelName].create(entries, saveGroups);
             });
           } else {
             debug('Cannot register update without old and new instance. Options: %j', ctx.options);
             debug('instance: %j', ctx.instance);
             debug('data: %j', ctx.data);
-            return next();
+            return saveGroups();
           }
         }
       }
@@ -626,14 +632,15 @@ exports.default = function (Model) {
     var dsName = (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.dataSource ? opts.revisions.dataSource : 'db';
     var rowIdType = (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.idType ? opts.revisions.idType : 'Number';
 
+    if (options.revisionsModelName) {
+      _createModel(opts, dsName, autoUpdate, rowIdType, { name: options.revisionsModelName });
+    }
     if (opts.revisions && (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.groups && opts.revisions.groups.length) {
       opts.revisions.groups.forEach(function (group) {
         if (!app.models[group.name]) {
           _createModel(opts, dsName, autoUpdate, rowIdType, group);
         }
       });
-    } else {
-      _createModel(opts, dsName, autoUpdate, rowIdType, options.revisionsModelName);
     }
   }
 
