@@ -55,7 +55,7 @@ Object.compare = function (obj1, obj2) {
     //Check property exists on both objects
     if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
     if (obj1[p] === null || obj2[p] === null) {
-      return obj1[p] != obj2[p];
+      return obj1[p] == obj2[p];
     }
 
     switch ((0, _typeof3.default)(obj1[p])) {
