@@ -11,22 +11,20 @@ const warn = (options, ...rest) => {
 Object.compare = function (obj1, obj2) {
 	//Loop through properties in object 1
 	for (var p in obj1) {
-            console.log("PROPERTY", p);
 		//Check property exists on both objects
 		if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+    if (obj1[p] === null || obj2[p] === null) {
+      return obj1[p] == obj2[p];
+    }
 
-                console.log('value 1', obj1[p]);
-                console.log('value 2', obj2[p]);
- 
 		switch (typeof (obj1[p])) {
 			//Deep compare objects
 			case 'object':
-                            console.log('OBJECT');
+        if (typeof (obj2[p]) !== 'object') return false;
 				if (!Object.compare(obj1[p], obj2[p])) return false;
 				break;
 			//Compare function code
 			case 'function':
-                            console.log('FUNCTION');
 				if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
 				break;
 			//Compare values
@@ -37,8 +35,6 @@ Object.compare = function (obj1, obj2) {
  
 	//Check object 2 for any extra properties
 	for (var p in obj2) {
-                console.log("2 PROPERTY", p);
-                console.log("2 VALUE", obj1[p]);
 		if (typeof (obj1[p]) == 'undefined') return false;
 	}
 	return true;
