@@ -442,14 +442,18 @@ export default (Model, bootOptions = {}) => {
   });
 
   if (options.softDelete) {
-    Model.destroyAll = function softDestroyAll(where, cb) {
+    Model.destroyAll = function softDestroyAll(where, opt, cb) {
       let query = where || {};
-      let callback = cb;
+      let callback = (cb === undefined && typeof opt === 'function') ? opt : cb;
+      let newOpt = {delete: true};
+      if (typeof opt === 'object') {
+        newOpt = {...opt, ...newOpt};
+      }
       if (typeof where === 'function') {
         callback = where;
         query = {};
       }
-      return Model.updateAll(query, { ...scrubbed }, {delete: true})
+      return Model.updateAll(query, { ...scrubbed }, newOpt)
         .then(result => (typeof callback === 'function') ? callback(null, result) : result)
         .catch(error => (typeof callback === 'function') ? callback(error) : Promise.reject(error));
     };
