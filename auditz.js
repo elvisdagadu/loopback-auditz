@@ -496,14 +496,18 @@ exports.default = function (Model) {
   });
 
   if (options.softDelete) {
-    Model.destroyAll = function softDestroyAll(where, cb) {
+    Model.destroyAll = function softDestroyAll(where, opt, cb) {
       var query = where || {};
-      var callback = cb;
+      var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
+      var newOpt = { delete: true };
+      if ((typeof opt === 'undefined' ? 'undefined' : (0, _typeof3.default)(opt)) === 'object') {
+        newOpt = (0, _extends4.default)({}, opt, newOpt);
+      }
       if (typeof where === 'function') {
         callback = where;
         query = {};
       }
-      return Model.updateAll(query, (0, _extends4.default)({}, scrubbed), { delete: true }).then(function (result) {
+      return Model.updateAll(query, (0, _extends4.default)({}, scrubbed), newOpt).then(function (result) {
         return typeof callback === 'function' ? callback(null, result) : result;
       }).catch(function (error) {
         return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
