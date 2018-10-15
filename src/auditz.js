@@ -465,7 +465,7 @@ export default (Model, bootOptions = {}) => {
       const callback = (cb === undefined && typeof opt === 'function') ? opt : cb;
       let newOpt = {delete: true};
       if (typeof opt === 'object') {
-        newOpt.remoteCtx = opt.remoteCtx;
+        newOpt = {...opt, ...newOpt};
       }
 
       return Model.updateAll({ [idName]: id }, { ...scrubbed}, newOpt)

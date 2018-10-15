@@ -521,7 +521,7 @@ exports.default = function (Model) {
       var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
       var newOpt = { delete: true };
       if ((typeof opt === 'undefined' ? 'undefined' : (0, _typeof3.default)(opt)) === 'object') {
-        newOpt.remoteCtx = opt.remoteCtx;
+        newOpt = (0, _extends4.default)({}, opt, newOpt);
       }
 
       return Model.updateAll((0, _defineProperty3.default)({}, idName, id), (0, _extends4.default)({}, scrubbed), newOpt).then(function (result) {
