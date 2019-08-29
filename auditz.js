@@ -55,7 +55,7 @@ Object.compare = function (obj1, obj2) {
     //Check property exists on both objects
     if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
     if (obj1[p] === null || obj2[p] === null) {
-      return obj1[p] == obj2[p];
+      return obj1[p] === obj2[p];
     }
 
     switch ((0, _typeof3.default)(obj1[p])) {
@@ -66,17 +66,17 @@ Object.compare = function (obj1, obj2) {
         break;
       //Compare function code
       case 'function':
-        if (typeof obj2[p] == 'undefined' || p != 'compare' && obj1[p].toString() != obj2[p].toString()) return false;
+        if (typeof obj2[p] === 'undefined' || p !== 'compare' && obj1[p].toString() !== obj2[p].toString()) return false;
         break;
       //Compare values
       default:
-        if (obj1[p] != obj2[p]) return false;
+        if (obj1[p] !== obj2[p]) return false;
     }
   }
 
   //Check object 2 for any extra properties
   for (var p in obj2) {
-    if (typeof obj1[p] == 'undefined') return false;
+    if (typeof obj1[p] === 'undefined') return false;
   }
   return true;
 };
@@ -449,6 +449,10 @@ exports.default = function (Model) {
       if (ctx.isNewInstance) {
         debug('Setting %s.%s to %s', ctx.Model.modelName, options.createdBy, currentUser);
         ctx.instance[options.createdBy] = currentUser;
+        if (options.softDelete) {
+          ctx.instance[options.deletedAt] = null;
+          ctx.instance.deleted = false;
+        }
       } else {
         // if the createdBy and createdAt are sent along in the data to save, remove the keys
         // as we don't want to let the user overwrite it
