@@ -1,6 +1,6 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
@@ -49,7 +49,7 @@ var warn = function warn(options) {
   }
 };
 
-Object.compare = function(obj1, obj2) {
+Object.compare = function (obj1, obj2) {
   //Loop through properties in object 1
   for (var p in obj1) {
     //Check property exists on both objects
@@ -60,17 +60,17 @@ Object.compare = function(obj1, obj2) {
 
     switch ((0, _typeof3.default)(obj1[p])) {
       //Deep compare objects
-    case 'object':
-      if ((0, _typeof3.default)(obj2[p]) !== 'object') return false;
-      if (!Object.compare(obj1[p], obj2[p])) return false;
-      break;
+      case 'object':
+        if ((0, _typeof3.default)(obj2[p]) !== 'object') return false;
+        if (!Object.compare(obj1[p], obj2[p])) return false;
+        break;
       //Compare function code
-    case 'function':
-      if (typeof obj2[p] === 'undefined' || p !== 'compare' && obj1[p].toString() !== obj2[p].toString()) return false;
-      break;
+      case 'function':
+        if (typeof obj2[p] === 'undefined' || p !== 'compare' && obj1[p].toString() !== obj2[p].toString()) return false;
+        break;
       //Compare values
-    default:
-      if (obj1[p] !== obj2[p]) return false;
+      default:
+        if (obj1[p] !== obj2[p]) return false;
     }
   }
 
@@ -81,7 +81,7 @@ Object.compare = function(obj1, obj2) {
   return true;
 };
 
-exports.default = function(Model) {
+exports.default = function (Model) {
   var bootOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   debug('Auditz mixin for Model %s', Model.modelName);
@@ -120,11 +120,11 @@ exports.default = function(Model) {
     if (options.scrub !== false) {
       var propertiesToScrub = options.scrub;
       if (!Array.isArray(propertiesToScrub)) {
-        propertiesToScrub = (0, _keys2.default)(properties).filter(function(prop) {
+        propertiesToScrub = (0, _keys2.default)(properties).filter(function (prop) {
           return !properties[prop][idName] && prop !== options.deletedAt && prop !== options.deletedBy;
         });
       }
-      scrubbed = propertiesToScrub.reduce(function(obj, prop) {
+      scrubbed = propertiesToScrub.reduce(function (obj, prop) {
         return (0, _extends4.default)({}, obj, (0, _defineProperty3.default)({}, prop, null));
       }, {});
     }
@@ -167,16 +167,14 @@ exports.default = function(Model) {
 
   if (options.softDelete) {
     if (typeof properties[options.deletedAt] === 'undefined') {
-      debug("Adding deleted at property not defined")
       Model.defineProperty(options.deletedAt, { type: Date, required: false, defaultFn: null });
-      Model.defineProperty(options.deleted, { type: Boolean, required: false, defaultFn: false });
     }
     if (typeof properties[options.deletedBy] === 'undefined') {
       Model.defineProperty(options.deletedBy, { type: String, required: false });
     }
   }
 
-  Model.observe('after save', function(ctx, next) {
+  Model.observe('after save', function (ctx, next) {
     if (!options.revisions) {
       return next();
     }
@@ -189,7 +187,7 @@ exports.default = function(Model) {
       currentUser = ctx.options.accessToken.userId;
     }
 
-    Model.getApp(function(err, a) {
+    Model.getApp(function (err, a) {
       if (err) {
         return next(err);
       }
@@ -210,8 +208,8 @@ exports.default = function(Model) {
         if (groups && Array.isArray(groups)) {
           var count = 0;
           if (!(ctx.options && ctx.options.delete)) {
-            groups.forEach(function(group) {
-              createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function() {
+            groups.forEach(function (group) {
+              createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function () {
                 count += 1;
                 if (count === groups.length) {
                   next();
@@ -250,7 +248,7 @@ exports.default = function(Model) {
               ip_forwarded: ipForwarded
             }, saveGroups);
           } else if (ctx.options.oldInstances) {
-            var entries = ctx.options.oldInstances.map(function(inst) {
+            var entries = ctx.options.oldInstances.map(function (inst) {
               return {
                 action: 'delete',
                 table_name: Model.modelName,
@@ -281,19 +279,19 @@ exports.default = function(Model) {
               ip_forwarded: ipForwarded
             }, saveGroups);
           } else if (ctx.options.oldInstances) {
-            var updatedIds = ctx.options.oldInstances.map(function(inst) {
+            var updatedIds = ctx.options.oldInstances.map(function (inst) {
               return inst.id;
             });
             var newInst = {};
             var query = { where: (0, _defineProperty3.default)({}, idName, { inq: updatedIds }) };
-            app.models[Model.modelName].find(query, function(error, newInstances) {
+            app.models[Model.modelName].find(query, function (error, newInstances) {
               if (error) {
                 return next(error);
               }
-              newInstances.forEach(function(inst) {
+              newInstances.forEach(function (inst) {
                 newInst[inst[idName]] = inst;
               });
-              var entries = ctx.options.oldInstances.map(function(inst) {
+              var entries = ctx.options.oldInstances.map(function (inst) {
                 return {
                   action: 'update',
                   table_name: Model.modelName,
@@ -324,7 +322,7 @@ exports.default = function(Model) {
     var toObject = to;
     var fromObject = from;
 
-    parts.forEach(function(key, index) {
+    parts.forEach(function (key, index) {
       if (index === parts.length - 1) {
         toObject[key] = fromObject && fromObject[key];
       } else {
@@ -340,7 +338,7 @@ exports.default = function(Model) {
 
   function createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, cb) {
     var data = {};
-    group.properties.forEach(function(key) {
+    group.properties.forEach(function (key) {
       cloneKey(key, ctx.instance, data);
     });
     debug(data);
@@ -364,7 +362,7 @@ exports.default = function(Model) {
       if (rec.old) {
         var old = {};
         //make sure the object is pure
-        group.properties.forEach(function(key) {
+        group.properties.forEach(function (key) {
           cloneKey(key, rec.old, old);
         });
         rec.old = old;
@@ -396,7 +394,7 @@ exports.default = function(Model) {
           id = ctx.options.remoteCtx.req && ctx.options.remoteCtx.req.args ? ctx.options.remoteCtx.req.args.id : null;
         }
         if (id) {
-          Model.findById(id, { deleted: true }, function(err, oldInstance) {
+          Model.findById(id, { deleted: true }, function (err, oldInstance) {
             if (err) {
               cb(err);
             } else {
@@ -405,7 +403,7 @@ exports.default = function(Model) {
           });
         } else {
           var query = { where: ctx.where } || {};
-          Model.find(query, function(err, oldInstances) {
+          Model.find(query, function (err, oldInstances) {
             if (err) {
               cb(err);
             } else {
@@ -426,10 +424,10 @@ exports.default = function(Model) {
     }
   }
 
-  Model.observe('before save', function(ctx, next) {
+  Model.observe('before save', function (ctx, next) {
     var softDelete = ctx.options.delete;
 
-    getOldInstance(ctx, function(err, result) {
+    getOldInstance(ctx, function (err, result) {
       if (err) {
         console.error(err);
         return next(err);
@@ -453,7 +451,6 @@ exports.default = function(Model) {
         ctx.instance[options.createdBy] = currentUser;
         if (options.softDelete) {
           ctx.instance[options.deletedAt] = null;
-          //ctx.instance.deleted = false;
         }
       } else {
         // if the createdBy and createdAt are sent along in the data to save, remove the keys
@@ -513,9 +510,9 @@ exports.default = function(Model) {
         callback = where;
         query = {};
       }
-      return Model.updateAll(query, (0, _extends4.default)({}, scrubbed), newOpt).then(function(result) {
+      return Model.updateAll(query, (0, _extends4.default)({}, scrubbed), newOpt).then(function (result) {
         return typeof callback === 'function' ? callback(null, result) : result;
-      }).catch(function(error) {
+      }).catch(function (error) {
         return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
       });
     };
@@ -530,9 +527,9 @@ exports.default = function(Model) {
         newOpt = (0, _extends4.default)({}, opt, newOpt);
       }
 
-      return Model.updateAll((0, _defineProperty3.default)({}, idName, id), (0, _extends4.default)({}, scrubbed), newOpt).then(function(result) {
+      return Model.updateAll((0, _defineProperty3.default)({}, idName, id), (0, _extends4.default)({}, scrubbed), newOpt).then(function (result) {
         return typeof callback === 'function' ? callback(null, result) : result;
-      }).catch(function(error) {
+      }).catch(function (error) {
         return typeof callback === 'function' ? callback(error) : _promise2.default.reject(error);
       });
     };
@@ -543,9 +540,9 @@ exports.default = function(Model) {
     Model.prototype.destroy = function softDestroy(opt, cb) {
       var callback = cb === undefined && typeof opt === 'function' ? opt : cb;
 
-      return this.updateAttributes((0, _extends4.default)({}, scrubbed), { delete: true }).then(function(result) {
+      return this.updateAttributes((0, _extends4.default)({}, scrubbed), { delete: true }).then(function (result) {
         return typeof cb === 'function' ? callback(null, result) : result;
-      }).catch(function(error) {
+      }).catch(function (error) {
         return typeof cb === 'function' ? callback(error) : _promise2.default.reject(error);
       });
     };
@@ -642,7 +639,7 @@ exports.default = function(Model) {
       _createModel(opts, dsName, autoUpdate, rowIdType, { name: options.revisionsModelName });
     }
     if (opts.revisions && (0, _typeof3.default)(opts.revisions) === 'object' && opts.revisions.groups && opts.revisions.groups.length) {
-      opts.revisions.groups.forEach(function(group) {
+      opts.revisions.groups.forEach(function (group) {
         if (!app.models[group.name]) {
           _createModel(opts, dsName, autoUpdate, rowIdType, group);
         }
@@ -670,7 +667,7 @@ exports.default = function(Model) {
 
     if (autoUpdate) {
       // create or update the revisions table
-      app.dataSources[dsName].autoupdate([group.name], function(error) {
+      app.dataSources[dsName].autoupdate([group.name], function (error) {
         if (error) {
           console.error(error);
         }
@@ -679,7 +676,7 @@ exports.default = function(Model) {
   }
 
   if (options.revisions) {
-    Model.getApp(function(err, a) {
+    Model.getApp(function (err, a) {
       if (err) {
         return console.error(err);
       }
