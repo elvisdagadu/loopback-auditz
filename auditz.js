@@ -105,7 +105,7 @@ exports.default = function (Model) {
       idType: 'Number',
       dataSource: 'db',
       autoUpdate: true,
-      remoteContextData: ['companyId']
+      remoteContextData: []
     }
   }, bootOptions);
 

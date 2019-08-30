@@ -62,7 +62,7 @@ export default (Model, bootOptions = {}) => {
       idType: 'Number',
       dataSource: 'db',
       autoUpdate: true,
-      remoteContextData: ['companyId'],
+      remoteContextData: [],
     },
   }, bootOptions);
 
