@@ -10,34 +10,34 @@ const warn = (options, ...rest) => {
 
 Object.compare = function(obj1, obj2) {
 	//Loop through properties in object 1
-	        for (var p in obj1) {
+	              for (var p in obj1) {
 		//Check property exists on both objects
-		        if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+		              if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
   if (obj1[p] === null || obj2[p] === null) {
     return obj1[p] === obj2[p];
   }
 
-		        switch (typeof (obj1[p])) {
+		              switch (typeof (obj1[p])) {
 			//Deep compare objects
 			case 'object':
   if (typeof (obj2[p]) !== 'object') return false;
-				        if (!Object.compare(obj1[p], obj2[p])) return false;
-				        break;
+				              if (!Object.compare(obj1[p], obj2[p])) return false;
+				              break;
 			//Compare function code
 			case 'function':
-				        if (typeof (obj2[p]) === 'undefined' || (p !== 'compare' && obj1[p].toString() !== obj2[p].toString())) return false;
-				        break;
+				              if (typeof (obj2[p]) === 'undefined' || (p !== 'compare' && obj1[p].toString() !== obj2[p].toString())) return false;
+				              break;
 			//Compare values
 			default:
-				        if (obj1[p] !== obj2[p]) return false;
+				              if (obj1[p] !== obj2[p]) return false;
 		}
 	}
 
 	//Check object 2 for any extra properties
-	        for (var p in obj2) {
-		        if (typeof (obj1[p]) === 'undefined') return false;
+	              for (var p in obj2) {
+		              if (typeof (obj1[p]) === 'undefined') return false;
 	}
-	        return true;
+	              return true;
 };
 
 export default (Model, bootOptions = {}) => {
@@ -62,6 +62,7 @@ export default (Model, bootOptions = {}) => {
       idType: 'Number',
       dataSource: 'db',
       autoUpdate: true,
+      remoteContextData: ['companyId'],
     },
   }, bootOptions);
 
@@ -166,8 +167,8 @@ export default (Model, bootOptions = {}) => {
               createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function() {
                 count += 1;
                 if (count === groups.length) {
-                    next();
-                  }
+                  next();
+                }
               });
             });
             return;
@@ -178,7 +179,7 @@ export default (Model, bootOptions = {}) => {
 
       // If it's a new instance, set the createdBy to currentUser
       if (ctx.isNewInstance) {
-        app.models[options.revisionsModelName].create({
+        let data = {
           action: 'create',
           table_name: Model.modelName,
           row_id: ctx.instance.id,
@@ -187,7 +188,18 @@ export default (Model, bootOptions = {}) => {
           user: currentUser,
           ip: ip,
           ip_forwarded: ipForwarded,
-        }, saveGroups);
+        };
+
+        //this is to allow adding data from remoting context to the revisions model
+        if (options.revisions.remoteContextData && options.revisions.remoteContextData.length > 0) {
+          options.revisions.remoteContextData.forEach((property) => {
+             if (ctx.options[property]){
+               data[property] = ctx.options[property];
+             }
+           });
+        }
+
+        app.models[options.revisionsModelName].create(data, saveGroups);
       } else {
         if (ctx.options && ctx.options.delete) {
           if (ctx.options.oldInstance) {

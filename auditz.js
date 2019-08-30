@@ -104,7 +104,8 @@ exports.default = function (Model) {
       name: 'revisions',
       idType: 'Number',
       dataSource: 'db',
-      autoUpdate: true
+      autoUpdate: true,
+      remoteContextData: ['companyId']
     }
   }, bootOptions);
 
@@ -223,7 +224,7 @@ exports.default = function (Model) {
 
       // If it's a new instance, set the createdBy to currentUser
       if (ctx.isNewInstance) {
-        app.models[options.revisionsModelName].create({
+        var data = {
           action: 'create',
           table_name: Model.modelName,
           row_id: ctx.instance.id,
@@ -232,7 +233,18 @@ exports.default = function (Model) {
           user: currentUser,
           ip: ip,
           ip_forwarded: ipForwarded
-        }, saveGroups);
+        };
+
+        //this is to allow adding data from remoting context to the revisions model
+        if (options.revisions.remoteContextData && options.revisions.remoteContextData.length > 0) {
+          options.revisions.remoteContextData.forEach(function (property) {
+            if (ctx.options[property]) {
+              data[property] = ctx.options[property];
+            }
+          });
+        }
+
+        app.models[options.revisionsModelName].create(data, saveGroups);
       } else {
         if (ctx.options && ctx.options.delete) {
           if (ctx.options.oldInstance) {
