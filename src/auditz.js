@@ -149,7 +149,7 @@ export default (Model, bootOptions = {}) => {
       let ipForwarded = '';
       let ip = '127.0.0.1';
       if (ctx.options.ip || ctx.options.ipForwarded) {
-        ipForwarded = ctx.options.ipForwarded;
+        ipForwarded = ctx.options.ipForwarded || '';
         ip = ctx.options.ip;
       }
       let groups = options.revisions.groups;

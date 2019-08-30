@@ -194,7 +194,7 @@ exports.default = function (Model) {
       var ipForwarded = '';
       var ip = '127.0.0.1';
       if (ctx.options.ip || ctx.options.ipForwarded) {
-        ipForwarded = ctx.options.ipForwarded;
+        ipForwarded = ctx.options.ipForwarded || '';
         ip = ctx.options.ip;
       }
       var groups = options.revisions.groups;
