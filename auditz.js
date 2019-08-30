@@ -166,7 +166,7 @@ exports.default = function (Model) {
 
   if (options.softDelete) {
     if (typeof properties[options.deletedAt] === 'undefined') {
-      Model.defineProperty(options.deletedAt, { type: Date, required: false, defaultFn: null });
+      Model.defineProperty(options.deletedAt, { type: Date, required: false, 'default': null });
     }
     if (typeof properties[options.deletedBy] === 'undefined') {
       Model.defineProperty(options.deletedBy, { type: String, required: false });

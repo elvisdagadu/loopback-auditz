@@ -10,34 +10,34 @@ const warn = (options, ...rest) => {
 
 Object.compare = function(obj1, obj2) {
 	//Loop through properties in object 1
-	      for (var p in obj1) {
+	        for (var p in obj1) {
 		//Check property exists on both objects
-		      if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+		        if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
   if (obj1[p] === null || obj2[p] === null) {
     return obj1[p] === obj2[p];
   }
 
-		      switch (typeof (obj1[p])) {
+		        switch (typeof (obj1[p])) {
 			//Deep compare objects
 			case 'object':
   if (typeof (obj2[p]) !== 'object') return false;
-				      if (!Object.compare(obj1[p], obj2[p])) return false;
-				      break;
+				        if (!Object.compare(obj1[p], obj2[p])) return false;
+				        break;
 			//Compare function code
 			case 'function':
-				      if (typeof (obj2[p]) === 'undefined' || (p !== 'compare' && obj1[p].toString() !== obj2[p].toString())) return false;
-				      break;
+				        if (typeof (obj2[p]) === 'undefined' || (p !== 'compare' && obj1[p].toString() !== obj2[p].toString())) return false;
+				        break;
 			//Compare values
 			default:
-				      if (obj1[p] !== obj2[p]) return false;
+				        if (obj1[p] !== obj2[p]) return false;
 		}
 	}
 
 	//Check object 2 for any extra properties
-	      for (var p in obj2) {
-		      if (typeof (obj1[p]) === 'undefined') return false;
+	        for (var p in obj2) {
+		        if (typeof (obj1[p]) === 'undefined') return false;
 	}
-	      return true;
+	        return true;
 };
 
 export default (Model, bootOptions = {}) => {
@@ -122,7 +122,7 @@ export default (Model, bootOptions = {}) => {
 
   if (options.softDelete) {
     if (typeof(properties[options.deletedAt]) === 'undefined') {
-      Model.defineProperty(options.deletedAt, { type: Date, required: false, defaultFn: null });
+      Model.defineProperty(options.deletedAt, { type: Date, required: false, 'default': null });
     }
     if (typeof(properties[options.deletedBy]) === 'undefined') {
       Model.defineProperty(options.deletedBy, {type: String, required: false});
@@ -164,11 +164,11 @@ export default (Model, bootOptions = {}) => {
           if (!(ctx.options && ctx.options.delete)) {
             groups.forEach(function(group) {
               createOrUpdateRevision(ctx, group, currentUser, ipForwarded, ip, function() {
-                  count += 1;
-                  if (count === groups.length) {
-                      next();
-                    }
-                });
+                count += 1;
+                if (count === groups.length) {
+                    next();
+                  }
+              });
             });
             return;
           }
