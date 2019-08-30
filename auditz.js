@@ -96,7 +96,6 @@ exports.default = function (Model) {
     deletedBy: 'deletedBy',
     softDelete: true,
     unknownUser: '0',
-    remoteCtx: 'remoteCtx',
     scrub: false,
     required: true,
     validateUpsert: false, // default to turning validation off

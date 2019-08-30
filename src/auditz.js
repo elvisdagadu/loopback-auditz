@@ -53,7 +53,6 @@ export default (Model, bootOptions = {}) => {
     deletedBy: 'deletedBy',
     softDelete: true,
     unknownUser: '0',
-    remoteCtx: 'remoteCtx',
     scrub: false,
     required: true,
     validateUpsert: false, // default to turning validation off
