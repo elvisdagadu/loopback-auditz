@@ -1,5 +1,5 @@
 {
-  "name": "loopback-auditz",
+  "name": "lp-audit",
   "version": "0.4.2",
   "description": "Adds comprehensive audit trail functionality to Loopback by keeping track of who created/modified/deleted data and when they did it, and adds a revisions model compatible with Sofa/Revisionable for PHP (https://github.com/jarektkaczyk/revisionable)",
   "main": "src/index.js",
@@ -24,22 +24,19 @@
     "timestamp",
     "revisions"
   ],
-  "author": "Jouke Visser (jouke@studio-mv.nl)",
+  "author": "Edzordzinam Dagadu (edzordzinam@gmail.com)",
   "badges": {
     "list": [
       "travisci",
       "npmversion",
-      "npmdownloads",
-      "coveralls",
-      "daviddm",
-      "daviddmdev"
+      "npmdownloads"
     ],
     "config": {}
   },
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jouke/loopback-auditz.git"
+    "url": "git+https://github.com/elvisdagadu/loopback-auditz.git"
   },
   "babel": {
     "presets": [
@@ -85,11 +82,9 @@
   },
   "maintainers": [],
   "contributors": [
-    "Jouke Visser <jouke@studio-mv.nl> (http://studio-mv.nl)",
-    "Samuel Gaus <sam@gaus.co.uk> (http://gaus.ie)",
-    "Dalibor Karlović <dkarlovi@gmail.com> (https://github.com/dkarlovi)"
+    "Edzordzinam D. <edzordzinam@gmail.com> "
   ],
   "bugs": {
-    "url": "https://github.com/jouke/loopback-auditz/issues"
+    "url": "https://github.com/elvisdagadu/loopback-auditz/issues"
   }
 }
