@@ -82,7 +82,12 @@
   },
   "maintainers": [],
   "contributors": [
-    "Edzordzinam D. <edzordzinam@gmail.com> "
+    "Edzordzinam D. <edzordzinam@gmail.com>",
+    "Jouke Visser (http://studio-mv.nl)",
+    "Samuel Gaus (http://gaus.ie)",
+    "Kalin Stefanov (https://github.com/kalins)",
+    "Dalibor Karlović (https://github.com/dkarlovi)",
+    "Rumen Rusanov (https://github.com/hpstuff)"
   ],
   "bugs": {
     "url": "https://github.com/elvisdagadu/loopback-auditz/issues"

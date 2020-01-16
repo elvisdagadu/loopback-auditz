@@ -1,18 +1,15 @@
 <!-- TITLE/ -->
 
-<h1>loopback-auditz-amend</h1>
+<h1>lp-audit</h1>
 
 <!-- /TITLE -->
 
 
 <!-- BADGES/ -->
 
-<span class="badge-travisci"><a href="http://travis-ci.org/jouke/loopback-auditz" title="Check this project's build status on TravisCI"><img src="https://img.shields.io/travis/jouke/loopback-auditz/master.svg" alt="Travis CI Build Status" /></a></span>
-<span class="badge-npmversion"><a href="https://npmjs.org/package/loopback-auditz-amend" title="View this project on NPM"><img src="https://img.shields.io/npm/v/loopback-auditz-amend.svg" alt="NPM version" /></a></span>
-<span class="badge-npmdownloads"><a href="https://npmjs.org/package/loopback-auditz-amend" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/loopback-auditz-amend.svg" alt="NPM downloads" /></a></span>
-<span class="badge-coveralls"><a href="https://coveralls.io/r/jouke/loopback-auditz" title="View this project's coverage on Coveralls"><img src="https://img.shields.io/coveralls/jouke/loopback-auditz.svg" alt="Coveralls Coverage Status" /></a></span>
-<span class="badge-daviddm"><a href="https://david-dm.org/jouke/loopback-auditz" title="View the status of this project's dependencies on DavidDM"><img src="https://img.shields.io/david/jouke/loopback-auditz.svg" alt="Dependency Status" /></a></span>
-<span class="badge-daviddmdev"><a href="https://david-dm.org/jouke/loopback-auditz#info=devDependencies" title="View the status of this project's development dependencies on DavidDM"><img src="https://img.shields.io/david/dev/jouke/loopback-auditz.svg" alt="Dev Dependency Status" /></a></span>
+<span class="badge-travisci"><a href="http://travis-ci.org/elvisdagadu/loopback-auditz" title="Check this project's build status on TravisCI"><img src="https://img.shields.io/travis/elvisdagadu/loopback-auditz/master.svg" alt="Travis CI Build Status" /></a></span>
+<span class="badge-npmversion"><a href="https://npmjs.org/package/lp-audit" title="View this project on NPM"><img src="https://img.shields.io/npm/v/lp-audit.svg" alt="NPM version" /></a></span>
+<span class="badge-npmdownloads"><a href="https://npmjs.org/package/lp-audit" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/lp-audit.svg" alt="NPM downloads" /></a></span>
 
 <!-- /BADGES -->
 
@@ -224,7 +221,7 @@ Unless you specified softDelete to be turned off, you can run queries that inclu
 
 <h2>Contribute</h2>
 
-<a href="https://github.com/jouke/loopback-auditz/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
+<a href="https://github.com/elvisdagadu/loopback-auditz/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
 <!-- /CONTRIBUTE -->
 
@@ -235,7 +232,7 @@ Unless you specified softDelete to be turned off, you can run queries that inclu
 
 Unless stated otherwise all works are:
 
-<ul><li>Copyright &copy; <a href="jouke@studio-mv.nl">Jouke Visser</a></li></ul>
+<ul><li>Copyright &copy; <a href="edzordzinam@gmail.com">Edzordzinam Dagadu</a></li></ul>
 
 and licensed under:
 
